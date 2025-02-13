@@ -1,0 +1,40 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install PostgreSQL packages
+  apt:
+    name: "{{ postgresql_packages }}"
+    state: present
+    update_cache: yes
+
+- name: Ensure PostgreSQL service is running
+  service:
+    name: "{{ postgresql_service }}"
+    state: started
+    enabled: yes
+
+- name: Restart 
+  service:
+    name: "{{ postgresql_service }}"
+    state: restarted
+
+- name: Utility present
+  ansible.builtin.package:
+    name: python3-psycopg2
+    state: present
+
+- name: Create a new database
+  community.postgresql.postgresql_db:
+    name: mydb
+    comment: My test DB
+  become: true
+  become_user: postgres
+
+- name: Create db user
+  community.postgresql.postgresql_user:
+    db: mydb
+    state: present
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: ALL
+  become: true
+  become_user: postgres

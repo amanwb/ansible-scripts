@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+postgresql_service: "postgresql"
+postgresql_packages:
+  - "postgresql-16"
+  - "postgresql-contrib"
+
+db_user: demo
+db_password: demo123

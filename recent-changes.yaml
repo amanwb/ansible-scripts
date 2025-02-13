@@ -1,0 +1,5 @@
+- name: Fetch Recent Changes from Hosts
+  hosts: all
+  become: yes
+  roles:
+    - check_recent_changes

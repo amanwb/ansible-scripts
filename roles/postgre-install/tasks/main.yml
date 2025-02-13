@@ -1,0 +1,52 @@
+---
+- name: Install PostgreSQL packages
+  apt:
+    name: "{{ postgresql_packages }}"
+    state: present
+    update_cache: yes
+  
+
+- name: Ensure PostgreSQL service is running
+  service:
+    name: "{{ postgresql_service }}"
+    state: started
+    enabled: yes
+
+- name: Restart 
+  service:
+    name: "{{ postgresql_service }}"
+    state: restarted
+  notify: 
+    - Restart PostgreSQL
+    - Create a new database
+    - Create a new PostgreSQL user
+
+- name: Install psycopg2
+  apt:
+    name: python3-psycopg2
+    state: present
+
+- name: Copy pg_hba.conf template
+  check_mode: no
+  template:
+    src: pg_hba.conf.j2
+    dest: /etc/postgresql/16/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: '0644'
+  notify: 
+    - Restart PostgreSQL
+    - Create a new database
+    - Create a new PostgreSQL user
+# - name: Create PostgreSQL users
+#   become_user: postgres
+#   command: psql -c "CREATE USER root WITH PASSWORD 'password';"
+  
+
+# - name: Create PostgreSQL databases
+#   become_user: postgres
+#   postgresql_db:
+#     name: "{{ item.name }}"
+#     owner: "{{ item.owner }}"
+#   loop: "{{ postgresql_databases }}"
+  

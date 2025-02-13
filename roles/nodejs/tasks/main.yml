@@ -1,0 +1,38 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/nodejs
+- name: Install Pre-requisites 
+  ansible.builtin.apt:
+    name: curl
+    state: present
+
+- name: adding the source for nodejs 
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh"
+
+- name: Running the Nodejs Setup script
+  ansible.builtin.shell:
+    cmd: "sudo -E bash nodesource_setup.sh"
+
+- name: Install the Nodejs in host 
+  ansible.builtin.apt:
+    name: nodejs 
+    state: latest
+  
+- name: Check the Nodejs Version 
+  ansible.builtin.command: node -v
+  register: node_version
+  changed_when: false
+
+- name: Display installed Node.js version
+  ansible.builtin.debug:
+    msg: "Installed Node.js version: {{ node_version.stdout }}"
+
+- name: Check the npm Version 
+  ansible.builtin.command: npm -v
+  register: npm_version
+  changed_when: false
+  
+- name: Display installed npm version
+  ansible.builtin.debug:
+    msg: "Installed npm version: {{ npm_version.stdout }}"

@@ -1,0 +1,43 @@
+---
+- name: Remove PostgreSQL and all related configurations
+  hosts: all
+  become: yes
+  vars:
+    pg_version: "16"
+    pg_service: "postgresql"
+    pg_package: "postgresql-{{ pg_version }}"
+  tasks:
+    - name: Stop PostgreSQL service
+      service:
+        name: "{{ pg_service }}"
+        state: stopped
+      ignore_errors: yes  # Ignore errors if PostgreSQL is not installed
+
+    - name: Disable PostgreSQL service
+      systemd:
+        name: "{{ pg_service }}"
+        enabled: no
+      ignore_errors: yes
+
+    - name: Uninstall PostgreSQL package
+      apt:
+        name: "{{ pg_package }}"
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    - name: Remove PostgreSQL dependencies
+      apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+      loop:
+        - postgresql-contrib
+        - postgresql-client-{{ pg_version }}
+        - libpq-dev
+      ignore_errors: yes
+
+    - name: Clean up package cache
+      apt:
+        autoclean: yes
+        autoremove: yes

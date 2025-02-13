@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for roles/apache-server
+- name: start apache service
+  service:
+    name: apache2
+    state: started
+
+- name: restart apache service
+  service:
+    name: apache2
+    state: restarted

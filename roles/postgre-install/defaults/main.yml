@@ -1,0 +1,16 @@
+---
+postgresql_version: 16
+postgresql_listen_addresses: "localhost"
+postgresql_port: 5432
+postgresql_data_directory: "/var/lib/postgresql/{{ postgresql_version }}/main"
+postgresql_service: "postgresql"
+postgresql_packages:
+  - "postgresql-{{ postgresql_version }}"
+  - "postgresql-contrib"
+postgresql_users:
+  - name: "admin"
+    password: "securepassword"
+postgresql_databases:
+  - name: "mydatabase"
+    owner: "admin"
+

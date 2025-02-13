@@ -1,0 +1,28 @@
+---
+- name: Update web servers
+  hosts: dev
+  become: yes
+  remote_user: ubuntu
+
+  tasks:
+  - name: Ensure apache is at the latest version
+    ansible.builtin.apt:
+      name: apache2
+      state: present
+
+
+- name: Update db servers
+  hosts: prod
+  become: yes
+  remote_user: ubuntu
+
+  tasks:
+  - name: Ensure postgresql is at the latest version
+    ansible.builtin.apt:
+      name: postgresql
+      state: latest
+
+  - name: Ensure that postgresql is started
+    ansible.builtin.service:
+      name: postgresql
+      state: started

@@ -1,0 +1,30 @@
+---
+- name: Installing Git in All Machines 
+  hosts: all
+  become: true
+  tasks:
+    - name: Installing Git 
+      apt: 
+        name: git
+        state: latest
+        update_cache: yes
+
+- name: Installing Nodejs In remote Servers
+  hosts: dev
+  become: true
+  remote_user: ubuntu
+  
+  roles:
+    - nodejs
+    - aws-cli
+    - apache-server
+
+- name: Installing Nodejs In Prod Servers
+  hosts: prod
+  become: true
+  remote_user: ubuntu
+
+  roles:
+    - apache-server
+    - nodejs
+    - aws-cli

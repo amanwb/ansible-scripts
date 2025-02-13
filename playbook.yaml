@@ -1,0 +1,55 @@
+- name: Getting Started with Ansible Playbooks
+  hosts: dev
+  become: yes  
+
+  tasks:
+    - name: Update package lists
+      apt:
+        update_cache: yes
+      
+
+    - name: Install Apache Web Server
+      apt:
+        name: apache2
+        state: present
+      
+
+    - name: Start and Enable Apache Service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Allow HTTP Traffic in Firewall
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+
+- name: Getting Started with Ansible Playbooks
+  hosts: prod
+  become: true  # Run as sudo
+
+  tasks:
+    - name: Update package lists
+      apt:
+        update_cache: yes
+      
+
+    - name: Install Apache Web Server
+      apt:
+        name: apache2
+        state: present
+      
+
+    - name: Start and Enable Apache Service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Allow HTTP Traffic in Firewall
+      ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
