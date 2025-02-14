@@ -1,0 +1,131 @@
+---
+- name: AirOS Deployment
+  hosts: all
+  gather_facts: no
+  become: true
+  remote_user: ubuntu
+  vars_files:
+    - secrets.yaml
+
+  vars:
+    destdir: /apps/SampleApp
+  tasks:
+    - name: Update the system
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install git
+      ansible.builtin.apt:
+        name: git
+        state: latest
+    
+    - name: adding the source for nodejs 
+      ansible.builtin.shell:
+        cmd: "curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh"
+
+    - name: Running the Nodejs Setup script
+      ansible.builtin.shell:
+        cmd: "sudo -E bash nodesource_setup.sh"
+
+    - name: Install Nodejs
+      ansible.builtin.apt:
+        name: nodejs
+        state: present
+    
+    - name: Check Nodejs Version
+      ansible.builtin.command: node -v
+      register: node_version
+      changed_when: false
+
+    - name: check npm version
+      ansible.builtin.command: npm -v 
+      register: npm_version
+      changed_when: false
+
+    - name: Nodejs and Npm version
+      ansible.builtin.debug:
+        msg: "nodejs version {{ node_version.stdout }} and npm version {{ npm_version }}"
+
+    - name: install nginx
+      ansible.builtin.apt: 
+        name: nginx 
+        state: latest
+
+    - name: Copy default for nginx
+      become: true
+      become_user: root 
+      ansible.builtin.copy:
+        src: "/home/aman/ansible/default"
+        dest: "/etc/nginx/sites-available/default"
+
+    - name: start nginx service
+      ansible.builtin.service: 
+        name: nginx
+        state: restarted
+
+    - name: Download the NodeJS code from the GitRepo
+      ansible.builtin.git:
+        repo: 'https://{{ gituser }}:{{ gitpass }}@github.com/KuldeepRawa509/airos-client.git'
+        version: develop
+        dest: "{{ destdir }}"
+
+    # - name: Change the ownership of the directory
+    #   become: yes
+    #   ansible.builtin.file:
+    #     path: "{{destdir}}"
+    #   register: chgrpout
+    # - name: Clean up node_modules 
+    #   ansible.builtin.shell:
+    #     cmd: "rm -rf node_modules index.html" 
+    #   args:
+    #     chdir: "{{ destdir }}"
+    # - name: Copy Index.html 
+    #   ansible.builtin.copy:
+    #     src: /home/aman/projects/airos-client/index.html
+    #     dest: "{{ destdir }}/index.html"
+
+    - name: Install Dependencies with NPM install command
+      ansible.builtin.shell: "npm install"
+      args:
+        chdir: "{{ destdir }}"
+      register: npminstlout
+
+    # - name: Debug npm install command
+    #   ansible.builtin.debug: 
+    #     msg= '{{npminstlout.stdout_lines}}'
+
+    - name: Format the App
+      ansible.builtin.shell: "npm run format"
+      args:
+        chdir: "{{ destdir }}"
+      register: npm_format
+
+    # - name: RUN format
+    #   ansible.builtin.debug:
+    #     msg: '{{  npm_format.stdout_lines}}'
+    
+
+    - name: Make the App Run
+      ansible.builtin.shell: "npm run dev"
+      become: true
+      args:
+        chdir: "{{ destdir }}"
+      register: app_running
+
+    # - name: Running the app using SERVE
+    #   ansible.builtin.shell:
+    #     cmd: "npm install -g serve"
+    #   register: app_serve
+    # - name: Ensure Serve Installed
+    #   ansible.builtin.debug:
+    #     msg: '{{ app_serve.stdout_lines}}'       
+        
+    # - name: RUN App
+    #   ansible.builtin.shell:
+    #     cmd: "serve -s dist -l 80"
+    #   register: app_running
+
+    # - name: ensure app Running
+    #   ansible.builtin.debug:
+    #     msg: '{{ app_running.stdout_lines }}'
