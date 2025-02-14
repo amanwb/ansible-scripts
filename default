@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name 3.109.206.139;
+    server_name 43.204.23.181;
 
     location / {
         proxy_pass http://localhost:5173;
