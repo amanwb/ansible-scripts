@@ -19,5 +19,26 @@
         state: present
         shell: /bin/bash
         password: "{{ 'Aman#123' | password_hash('sha512') }}"
-        groups: sudo, adm, ubuntu
+        groups: sudo, adm, 
         create_home: yes
+
+    - name: create the directory for keys
+      ansible.builtin.file:
+        name: /home/"{{ user }}"/.ssh
+        state: directory
+        mode: 0700
+        owner: "{{ user }}"
+        group: "{{ user }}"
+
+    - name: copy the ssh_key
+      ansible.builtin.copy:
+        src: /home/ubuntu/.ssh/authorized_keys
+        dest: /home/"{{ user }}"/.ssh/authorized_keys
+        remote_src: yes
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted

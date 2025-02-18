@@ -14,3 +14,6 @@ server {
         proxy_set_header Connection "Upgrade";
     }
 }
+
+
+https://amanwb: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@github.com/KuldeepRawa509/airos-client.git
